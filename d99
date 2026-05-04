@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int   position;
+    int   speed;
+} Car;
+
+int cmpCar(const void* a, const void* b) {
+    return ((Car*)b)->position - ((Car*)a)->position;
+}
+
+int main() {
+    int target, n;
+    scanf("%d %d", &target, &n);
+
+    Car* cars = (Car*)malloc(n * sizeof(Car));
+    for (int i = 0; i < n; i++)
+        scanf("%d %d", &cars[i].position, &cars[i].speed);
+
+    qsort(cars, n, sizeof(Car), cmpCar);
+
+    double* stack = (double*)malloc(n * sizeof(double));
+    int     top   = 0;
+
+    for (int i = 0; i < n; i++) {
+        double time = (double)(target - cars[i].position) / cars[i].speed;
+
+        // If current car takes longer than top of stack, it's a new fleet
+        if (top == 0 || time > stack[top - 1])
+            stack[top++] = time;
+    }
+
+    printf("%d\n", top);
+
+    free(cars);
+    free(stack);
+    return 0;
+}
