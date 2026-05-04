@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int start, end;
+} Interval;
+
+int cmpInterval(const void* a, const void* b) {
+    return ((Interval*)a)->start - ((Interval*)b)->start;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    Interval* intervals = (Interval*)malloc(n * sizeof(Interval));
+    for (int i = 0; i < n; i++)
+        scanf("%d %d", &intervals[i].start, &intervals[i].end);
+
+    qsort(intervals, n, sizeof(Interval), cmpInterval);
+
+    Interval* merged = (Interval*)malloc(n * sizeof(Interval));
+    int       count  = 0;
+
+    merged[count++] = intervals[0];
+
+    for (int i = 1; i < n; i++) {
+        if (intervals[i].start <= merged[count - 1].end) {
+            if (intervals[i].end > merged[count - 1].end)
+                merged[count - 1].end = intervals[i].end;
+        } else {
+            merged[count++] = intervals[i];
+        }
+    }
+
+    for (int i = 0; i < count; i++)
+        printf("[%d %d]\n", merged[i].start, merged[i].end);
+
+    free(intervals);
+    free(merged);
+    return 0;
+}
