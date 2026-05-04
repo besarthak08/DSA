@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int val;
+    struct Node* next;
+} Node;
+
+Node* newNode(int val) {
+    Node* node = (Node*)malloc(sizeof(Node));
+    node->val  = val;
+    node->next = NULL;
+    return node;
+}
+
+void addEdge(Node** adj, int* inDegree, int u, int v) {
+    Node* node = newNode(v);
+    node->next = adj[u];
+    adj[u]     = node;
+    inDegree[v]++;
+}
+
+void freeList(Node** adj, int n) {
+    for (int i = 0; i < n; i++) {
+        Node* temp = adj[i];
+        while (temp != NULL) {
+            Node* next = temp->next;
+            free(temp);
+            temp = next;
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    Node** adj      = (Node**)calloc(n, sizeof(Node*));
+    int*   inDegree = (int*)calloc(n, sizeof(int));
+
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        addEdge(adj, inDegree, u, v);
+    }
+
+    int* queue = (int*)malloc(n * sizeof(int));
+    int  front = 0, back = 0;
+
+    // Enqueue all vertices with in-degree 0
+    for (int i = 0; i < n; i++)
+        if (inDegree[i] == 0)
+            queue[back++] = i;
+
+    int* topoOrder = (int*)malloc(n * sizeof(int));
+    int  count     = 0;
+
+    while (front < back) {
+        int curr = queue[front++];
+        topoOrder[count++] = curr;
+
+        Node* temp = adj[curr];
+        while (temp != NULL) {
+            inDegree[temp->val]--;
+            if (inDegree[temp->val] == 0)
+                queue[back++] = temp->val;
+            temp = temp->next;
+        }
+    }
+
+    if (count != n)
+        printf("Cycle detected! Topological sort not possible.\n");
+    else {
+        printf("Topological Order: ");
+        for (int i = 0; i < count; i++) {
+            printf("%d", topoOrder[i]);
+            if (i < count - 1) printf(" ");
+        }
+        printf("\n");
+    }
+
+    freeList(adj, n);
+    free(adj);
+    free(inDegree);
+    free(queue);
+    free(topoOrder);
+    return 0;
+}
