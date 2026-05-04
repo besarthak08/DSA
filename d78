@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+typedef struct Node {
+    int val, weight;
+    struct Node* next;
+} Node;
+
+Node* newNode(int val, int weight) {
+    Node* node  = (Node*)malloc(sizeof(Node));
+    node->val    = val;
+    node->weight = weight;
+    node->next   = NULL;
+    return node;
+}
+
+void addEdge(Node** adj, int u, int v, int w) {
+    Node* node = newNode(v, w);
+    node->next = adj[u];
+    adj[u]     = node;
+}
+
+void freeList(Node** adj, int n) {
+    for (int i = 0; i <= n; i++) {
+        Node* temp = adj[i];
+        while (temp != NULL) {
+            Node* next = temp->next;
+            free(temp);
+            temp = next;
+        }
+    }
+}
+
+int minKey(int* key, int* inMST, int n) {
+    int min    = INT_MAX;
+    int minIdx = -1;
+
+    for (int i = 1; i <= n; i++)
+        if (!inMST[i] && key[i] < min) {
+            min    = key[i];
+            minIdx = i;
+        }
+    return minIdx;
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    Node** adj = (Node**)calloc(n + 1, sizeof(Node*));
+
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        addEdge(adj, u, v, w);
+        addEdge(adj, v, u, w);
+    }
+
+    int* key   = (int*)malloc((n + 1) * sizeof(int));
+    int* inMST = (int*)calloc(n + 1, sizeof(int));
+
+    for (int i = 1; i <= n; i++) key[i] = INT_MAX;
+    key[1] = 0;
+
+    int totalWeight = 0;
+
+    for (int i = 0; i < n; i++) {
+        int u = minKey(key, inMST, n);
+        if (u == -1) break;
+
+        inMST[u]     = 1;
+        totalWeight += key[u];
+
+        Node* temp = adj[u];
+        while (temp != NULL) {
+            int v = temp->val;
+            int w = temp->weight;
+            if (!inMST[v] && w < key[v])
+                key[v] = w;
+            temp = temp->next;
+        }
+    }
+
+    printf("%d\n", totalWeight);
+
+    freeList(adj, n);
+    free(adj);
+    free(key);
+    free(inMST);
+    return 0;
+}
