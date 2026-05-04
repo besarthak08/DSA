@@ -1,0 +1,49 @@
+#include <stdio.h>
+
+int canPaint(int* boards, int n, int k, int maxTime) {
+    int painters = 1;
+    int current  = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (boards[i] > maxTime) return 0;
+        if (current + boards[i] > maxTime) {
+            painters++;
+            current = boards[i];
+            if (painters > k) return 0;
+        } else {
+            current += boards[i];
+        }
+    }
+    return 1;
+}
+
+int main() {
+    int n, k;
+    scanf("%d %d", &n, &k);
+
+    int boards[n];
+    int sum = 0, maxVal = 0;
+
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &boards[i]);
+        sum += boards[i];
+        if (boards[i] > maxVal) maxVal = boards[i];
+    }
+
+    int lo  = maxVal;
+    int hi  = sum;
+    int ans = sum;
+
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (canPaint(boards, n, k, mid)) {
+            ans = mid;
+            hi  = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+
+    printf("%d\n", ans);
+    return 0;
+}
