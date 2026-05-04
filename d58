@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct TreeNode {
+    int val;
+    struct TreeNode* left;
+    struct TreeNode* right;
+} TreeNode;
+
+TreeNode* newNode(int val) {
+    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));
+    node->val = val;
+    node->left = node->right = NULL;
+    return node;
+}
+
+int findIndex(int* inorder, int start, int end, int val) {
+    for (int i = start; i <= end; i++)
+        if (inorder[i] == val) return i;
+    return -1;
+}
+
+int preIndex = 0;
+
+TreeNode* buildTree(int* preorder, int* inorder, int start, int end) {
+    if (start > end) return NULL;
+
+    TreeNode* root = newNode(preorder[preIndex++]);
+
+    int idx = findIndex(inorder, start, end, root->val);
+
+    root->left  = buildTree(preorder, inorder, start, idx - 1);
+    root->right = buildTree(preorder, inorder, idx + 1, end);
+
+    return root;
+}
+
+int first = 1;
+
+void postorder(TreeNode* root) {
+    if (root == NULL) return;
+    postorder(root->left);
+    postorder(root->right);
+    if (!first) printf(" ");
+    printf("%d", root->val);
+    first = 0;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int* preorder = (int*)malloc(n * sizeof(int));
+    int* inorder  = (int*)malloc(n * sizeof(int));
+
+    for (int i = 0; i < n; i++) scanf("%d", &preorder[i]);
+    for (int i = 0; i < n; i++) scanf("%d", &inorder[i]);
+
+    TreeNode* root = buildTree(preorder, inorder, 0, n - 1);
+    postorder(root);
+    printf("\n");
+
+    free(preorder);
+    free(inorder);
+    return 0;
+}
