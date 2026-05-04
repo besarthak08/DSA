@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define EMPTY -1
+#define DELETED -2
+
+int* hashTable;
+int  m;
+
+int hashFunc(int key) {
+    return key % m;
+}
+
+void insert(int key) {
+    int i = 0;
+    while (i < m) {
+        int idx = (hashFunc(key) + i * i) % m;
+        if (hashTable[idx] == EMPTY || hashTable[idx] == DELETED) {
+            hashTable[idx] = key;
+            return;
+        }
+        i++;
+    }
+    printf("Hash Table Full\n");
+}
+
+void search(int key) {
+    int i = 0;
+    while (i < m) {
+        int idx = (hashFunc(key) + i * i) % m;
+        if (hashTable[idx] == EMPTY) {
+            printf("NOT FOUND\n");
+            return;
+        }
+        if (hashTable[idx] == key) {
+            printf("FOUND\n");
+            return;
+        }
+        i++;
+    }
+    printf("NOT FOUND\n");
+}
+
+void delete(int key) {
+    int i = 0;
+    while (i < m) {
+        int idx = (hashFunc(key) + i * i) % m;
+        if (hashTable[idx] == EMPTY) {
+            printf("Key %d not found\n", key);
+            return;
+        }
+        if (hashTable[idx] == key) {
+            hashTable[idx] = DELETED;
+            return;
+        }
+        i++;
+    }
+    printf("Key %d not found\n", key);
+}
+
+int main() {
+    scanf("%d", &m);
+
+    hashTable = (int*)malloc(m * sizeof(int));
+    for (int i = 0; i < m; i++)
+        hashTable[i] = EMPTY;
+
+    int n;
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        char op[10];
+        int  key;
+        scanf("%s %d", op, &key);
+
+        if      (strcmp(op, "INSERT") == 0) insert(key);
+        else if (strcmp(op, "SEARCH") == 0) search(key);
+        else if (strcmp(op, "DELETE") == 0) delete(key);
+    }
+
+    free(hashTable);
+    return 0;
+}
