@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int start, end;
+} Interval;
+
+typedef struct {
+    int*  arr;
+    int   size, capacity;
+} MinHeap;
+
+int cmpInterval(const void* a, const void* b) {
+    return ((Interval*)a)->start - ((Interval*)b)->start;
+}
+
+MinHeap* createHeap(int capacity) {
+    MinHeap* heap = (MinHeap*)malloc(sizeof(MinHeap));
+    heap->arr      = (int*)malloc(capacity * sizeof(int));
+    heap->size     = 0;
+    heap->capacity = capacity;
+    return heap;
+}
+
+void heapifyUp(MinHeap* heap, int i) {
+    while (i > 0) {
+        int parent = (i - 1) / 2;
+        if (heap->arr[parent] > heap->arr[i]) {
+            int temp          = heap->arr[parent];
+            heap->arr[parent] = heap->arr[i];
+            heap->arr[i]      = temp;
+            i = parent;
+        } else break;
+    }
+}
+
+void heapifyDown(MinHeap* heap, int i) {
+    int smallest = i;
+    int left     = 2 * i + 1;
+    int right    = 2 * i + 2;
+
+    if (left  < heap->size && heap->arr[left]  < heap->arr[smallest]) smallest = left;
+    if (right < heap->size && heap->arr[right] < heap->arr[smallest]) smallest = right;
+
+    if (smallest != i) {
+        int temp              = heap->arr[smallest];
+        heap->arr[smallest]   = heap->arr[i];
+        heap->arr[i]          = temp;
+        heapifyDown(heap, smallest);
+    }
+}
+
+void push(MinHeap* heap, int val) {
+    heap->arr[heap->size] = val;
+    heapifyUp(heap, heap->size++);
+}
+
+int pop(MinHeap* heap) {
+    int top      = heap->arr[0];
+    heap->arr[0] = heap->arr[--heap->size];
+    heapifyDown(heap, 0);
+    return top;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    Interval* intervals = (Interval*)malloc(n * sizeof(Interval));
+    for (int i = 0; i < n; i++)
+        scanf("%d %d", &intervals[i].start, &intervals[i].end);
+
+    qsort(intervals, n, sizeof(Interval), cmpInterval);
+
+    MinHeap* heap = createHeap(n);
+    push(heap, intervals[0].end);
+
+    for (int i = 1; i < n; i++) {
+        if (intervals[i].start >= heap->arr[0])
+            pop(heap);
+        push(heap, intervals[i].end);
+    }
+
+    printf("%d\n", heap->size);
+
+    free(intervals);
+    free(heap->arr);
+    free(heap);
+    return 0;
+}
