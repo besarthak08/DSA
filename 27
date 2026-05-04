@@ -1,0 +1,66 @@
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+# Create linked list
+def create_list(arr):
+    head = None
+    tail = None
+    for num in arr:
+        new_node = Node(num)
+        if head is None:
+            head = tail = new_node
+        else:
+            tail.next = new_node
+            tail = new_node
+    return head
+
+# Get length
+def get_length(head):
+    count = 0
+    temp = head
+    while temp:
+        count += 1
+        temp = temp.next
+    return count
+
+# Find intersection
+def find_intersection(l1, l2):
+    len1 = get_length(l1)
+    len2 = get_length(l2)
+
+    # Align both lists
+    while len1 > len2:
+        l1 = l1.next
+        len1 -= 1
+    while len2 > len1:
+        l2 = l2.next
+        len2 -= 1
+
+    # Traverse together
+    while l1 and l2:
+        if l1.data == l2.data:
+            return l1.data
+        l1 = l1.next
+        l2 = l2.next
+
+    return None
+
+# Input
+n = int(input())
+arr1 = list(map(int, input().split()))
+m = int(input())
+arr2 = list(map(int, input().split()))
+
+# Create lists
+l1 = create_list(arr1)
+l2 = create_list(arr2)
+
+# Find and print intersection
+res = find_intersection(l1, l2)
+
+if res is not None:
+    print(res)
+else:
+    print("No Intersection")
