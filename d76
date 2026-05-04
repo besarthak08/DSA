@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int val;
+    struct Node* next;
+} Node;
+
+Node* newNode(int val) {
+    Node* node = (Node*)malloc(sizeof(Node));
+    node->val  = val;
+    node->next = NULL;
+    return node;
+}
+
+void addEdge(Node** adj, int u, int v) {
+    Node* node = newNode(v);
+    node->next = adj[u];
+    adj[u]     = node;
+}
+
+void dfs(Node** adj, int* visited, int src) {
+    visited[src] = 1;
+
+    Node* temp = adj[src];
+    while (temp != NULL) {
+        if (!visited[temp->val])
+            dfs(adj, visited, temp->val);
+        temp = temp->next;
+    }
+}
+
+void freeList(Node** adj, int n) {
+    for (int i = 0; i < n; i++) {
+        Node* temp = adj[i];
+        while (temp != NULL) {
+            Node* next = temp->next;
+            free(temp);
+            temp = next;
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    Node** adj = (Node**)calloc(n + 1, sizeof(Node*));
+
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        addEdge(adj, u, v);
+        addEdge(adj, v, u);
+    }
+
+    int* visited    = (int*)calloc(n + 1, sizeof(int));
+    int  components = 0;
+
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) {
+            dfs(adj, visited, i);
+            components++;
+        }
+    }
+
+    printf("%d\n", components);
+
+    freeList(adj, n + 1);
+    free(adj);
+    free(visited);
+    return 0;
+}
