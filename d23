@@ -1,0 +1,57 @@
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+# Function to create linked list
+def create_list(arr):
+    head = None
+    tail = None
+    for num in arr:
+        new_node = Node(num)
+        if head is None:
+            head = tail = new_node
+        else:
+            tail.next = new_node
+            tail = new_node
+    return head
+
+# Function to merge two sorted linked lists
+def merge_lists(l1, l2):
+    dummy = Node(0)
+    tail = dummy
+
+    while l1 and l2:
+        if l1.data <= l2.data:
+            tail.next = l1
+            l1 = l1.next
+        else:
+            tail.next = l2
+            l2 = l2.next
+        tail = tail.next
+
+    if l1:
+        tail.next = l1
+    else:
+        tail.next = l2
+
+    return dummy.next
+
+# Input
+n = int(input())
+arr1 = list(map(int, input().split()))
+m = int(input())
+arr2 = list(map(int, input().split()))
+
+# Create lists
+l1 = create_list(arr1)
+l2 = create_list(arr2)
+
+# Merge
+merged_head = merge_lists(l1, l2)
+
+# Print result
+temp = merged_head
+while temp:
+    print(temp.data, end=" ")
+    temp = temp.next
