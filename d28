@@ -1,0 +1,42 @@
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+# Create circular linked list
+def create_circular_list(arr):
+    head = None
+    tail = None
+
+    for num in arr:
+        new_node = Node(num)
+        if head is None:
+            head = tail = new_node
+        else:
+            tail.next = new_node
+            tail = new_node
+
+    if tail:
+        tail.next = head  # make it circular
+
+    return head
+
+# Traverse circular linked list
+def traverse(head):
+    if head is None:
+        return
+    
+    temp = head
+    while True:
+        print(temp.data, end=" ")
+        temp = temp.next
+        if temp == head:
+            break
+
+# Input
+n = int(input())
+arr = list(map(int, input().split()))
+
+# Create and traverse
+head = create_circular_list(arr)
+traverse(head)
