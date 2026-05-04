@@ -1,0 +1,145 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+typedef struct Node {
+    int val, weight;
+    struct Node* next;
+} Node;
+
+typedef struct {
+    int vertex, dist;
+} HeapNode;
+
+typedef struct {
+    HeapNode* arr;
+    int size, capacity;
+} MinHeap;
+
+Node* newNode(int val, int weight) {
+    Node* node   = (Node*)malloc(sizeof(Node));
+    node->val    = val;
+    node->weight = weight;
+    node->next   = NULL;
+    return node;
+}
+
+void addEdge(Node** adj, int u, int v, int w) {
+    Node* node = newNode(v, w);
+    node->next = adj[u];
+    adj[u]     = node;
+}
+
+MinHeap* createHeap(int capacity) {
+    MinHeap* heap  = (MinHeap*)malloc(sizeof(MinHeap));
+    heap->arr       = (HeapNode*)malloc(capacity * sizeof(HeapNode));
+    heap->size      = 0;
+    heap->capacity  = capacity;
+    return heap;
+}
+
+void swap(HeapNode* a, HeapNode* b) {
+    HeapNode temp = *a; *a = *b; *b = temp;
+}
+
+void heapifyUp(MinHeap* heap, int i) {
+    while (i > 0) {
+        int parent = (i - 1) / 2;
+        if (heap->arr[parent].dist > heap->arr[i].dist) {
+            swap(&heap->arr[parent], &heap->arr[i]);
+            i = parent;
+        } else break;
+    }
+}
+
+void heapifyDown(MinHeap* heap, int i) {
+    int smallest = i;
+    int left     = 2 * i + 1;
+    int right    = 2 * i + 2;
+
+    if (left  < heap->size && heap->arr[left].dist  < heap->arr[smallest].dist) smallest = left;
+    if (right < heap->size && heap->arr[right].dist < heap->arr[smallest].dist) smallest = right;
+
+    if (smallest != i) {
+        swap(&heap->arr[smallest], &heap->arr[i]);
+        heapifyDown(heap, smallest);
+    }
+}
+
+void push(MinHeap* heap, int vertex, int dist) {
+    heap->arr[heap->size].vertex = vertex;
+    heap->arr[heap->size].dist   = dist;
+    heapifyUp(heap, heap->size++);
+}
+
+HeapNode pop(MinHeap* heap) {
+    HeapNode top = heap->arr[0];
+    heap->arr[0] = heap->arr[--heap->size];
+    heapifyDown(heap, 0);
+    return top;
+}
+
+void freeList(Node** adj, int n) {
+    for (int i = 0; i <= n; i++) {
+        Node* temp = adj[i];
+        while (temp != NULL) {
+            Node* next = temp->next;
+            free(temp);
+            temp = next;
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    Node** adj = (Node**)calloc(n + 1, sizeof(Node*));
+
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        addEdge(adj, u, v, w);
+        addEdge(adj, v, u, w);
+    }
+
+    int src;
+    scanf("%d", &src);
+
+    int* dist = (int*)malloc((n + 1) * sizeof(int));
+    for (int i = 1; i <= n; i++) dist[i] = INT_MAX;
+    dist[src] = 0;
+
+    MinHeap* heap = createHeap(n * m + 1);
+    push(heap, src, 0);
+
+    while (heap->size > 0) {
+        HeapNode curr = pop(heap);
+        int u         = curr.vertex;
+
+        Node* temp = adj[u];
+        while (temp != NULL) {
+            int v = temp->val;
+            int w = temp->weight;
+            if (dist[u] != INT_MAX && dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                push(heap, v, dist[v]);
+            }
+            temp = temp->next;
+        }
+    }
+
+    for (int i = 1; i <= n; i++) {
+        if (dist[i] == INT_MAX) printf("INF");
+        else                    printf("%d", dist[i]);
+        if (i < n) printf(" ");
+    }
+    printf("\n");
+
+    freeList(adj, n);
+    free(adj);
+    free(dist);
+    free(heap->arr);
+    free(heap);
+    return 0;
+}
