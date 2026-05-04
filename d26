@@ -1,0 +1,32 @@
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.prev = None
+        self.next = None
+
+# Create doubly linked list
+def create_dll(arr):
+    head = None
+    tail = None
+    for num in arr:
+        new_node = Node(num)
+        if head is None:
+            head = tail = new_node
+        else:
+            tail.next = new_node
+            new_node.prev = tail
+            tail = new_node
+    return head
+
+# Input
+n = int(input())
+arr = list(map(int, input().split()))
+
+# Create list
+head = create_dll(arr)
+
+# Traverse forward
+temp = head
+while temp:
+    print(temp.data, end=" ")
+    temp = temp.next
