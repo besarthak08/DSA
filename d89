@@ -1,0 +1,54 @@
+#include <stdio.h>
+
+int canAllocate(int* pages, int n, int m, int maxPages) {
+    int students = 1;
+    int current  = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (pages[i] > maxPages) return 0;
+        if (current + pages[i] > maxPages) {
+            students++;
+            current = pages[i];
+            if (students > m) return 0;
+        } else {
+            current += pages[i];
+        }
+    }
+    return 1;
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    int pages[n];
+    int sum = 0, maxVal = 0;
+
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &pages[i]);
+        sum    += pages[i];
+        if (pages[i] > maxVal) maxVal = pages[i];
+    }
+
+    if (m > n) {
+        printf("-1\n");
+        return 0;
+    }
+
+    int lo  = maxVal;
+    int hi  = sum;
+    int ans = sum;
+
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (canAllocate(pages, n, m, mid)) {
+            ans = mid;
+            hi  = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+
+    printf("%d\n", ans);
+    return 0;
+}
