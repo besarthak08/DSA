@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 1000
+
+struct Node {
+    int data;
+    struct Node *left, *right;
+};
+
+// Create node
+struct Node* newNode(int x) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = x;
+    node->left = node->right = NULL;
+    return node;
+}
+
+// Build tree from level order (array representation)
+struct Node* buildTree(int arr[], int n, int i) {
+    if (i >= n || arr[i] == -1)
+        return NULL;
+
+    struct Node* root = newNode(arr[i]);
+    root->left = buildTree(arr, n, 2*i + 1);
+    root->right = buildTree(arr, n, 2*i + 2);
+
+    return root;
+}
+
+// Zigzag traversal using two stacks
+struct Node* s1[MAX], *s2[MAX];
+int top1 = -1, top2 = -1;
+
+void push1(struct Node* x) { s1[++top1] = x; }
+void push2(struct Node* x) { s2[++top2] = x; }
+struct Node* pop1() { return s1[top1--]; }
+struct Node* pop2() { return s2[top2--]; }
+
+int isEmpty1() { return top1 == -1; }
+int isEmpty2() { return top2 == -1; }
+
+void zigzag(struct Node* root) {
+    if (!root) return;
+
+    push1(root);
+
+    while (!isEmpty1() || !isEmpty2()) {
+
+        // Left to Right
+        while (!isEmpty1()) {
+            struct Node* curr = pop1();
+            printf("%d ", curr->data);
+
+            if (curr->left)  push2(curr->left);
+            if (curr->right) push2(curr->right);
+        }
+
+        // Right to Left
+        while (!isEmpty2()) {
+            struct Node* curr = pop2();
+            printf("%d ", curr->data);
+
+            if (curr->right) push1(curr->right);
+            if (curr->left)  push1(curr->left);
+        }
+    }
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int arr[n];
+    for (int i = 0; i < n; i++)
+        scanf("%d", &arr[i]);
+
+    struct Node* root = buildTree(arr, n, 0);
+
+    zigzag(root);
+
+    return 0;
+}
