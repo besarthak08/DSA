@@ -1,0 +1,20 @@
+# Read dimensions
+m, n = map(int, input().split())
+
+# Read first matrix
+A = []
+for _ in range(m):
+    row = list(map(int, input().split()))
+    A.append(row)
+
+# Read second matrix
+B = []
+for _ in range(m):
+    row = list(map(int, input().split()))
+    B.append(row)
+
+# Add matrices and print result
+for i in range(m):
+    for j in range(n):
+        print(A[i][j] + B[i][j], end=" ")
+    print()
