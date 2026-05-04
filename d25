@@ -1,0 +1,38 @@
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+# Create linked list
+def create_list(arr):
+    head = None
+    tail = None
+    for num in arr:
+        new_node = Node(num)
+        if head is None:
+            head = tail = new_node
+        else:
+            tail.next = new_node
+            tail = new_node
+    return head
+
+# Count occurrences
+def count_occurrences(head, key):
+    count = 0
+    temp = head
+    while temp:
+        if temp.data == key:
+            count += 1
+        temp = temp.next
+    return count
+
+# Input
+n = int(input())
+arr = list(map(int, input().split()))
+key = int(input())
+
+# Create list
+head = create_list(arr)
+
+# Count and print
+print(count_occurrences(head, key))
