@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Push
+void push(struct Node** top, int x) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = x;
+    newNode->next = *top;
+    *top = newNode;
+}
+
+// Pop
+int pop(struct Node** top) {
+    if (*top == NULL) return 0;
+    struct Node* temp = *top;
+    int val = temp->data;
+    *top = temp->next;
+    free(temp);
+    return val;
+}
+
+int main() {
+    struct Node* stack = NULL;
+    char ch;
+    int num = 0;
+
+    while ((ch = getchar()) != '\n') {
+        if (isdigit(ch)) {
+            num = ch - '0';
+            push(&stack, num);
+        }
+        else if (ch == ' ') {
+            continue;
+        }
+        else {
+            int b = pop(&stack);
+            int a = pop(&stack);
+            int res = 0;
+
+            switch (ch) {
+                case '+': res = a + b; break;
+                case '-': res = a - b; break;
+                case '*': res = a * b; break;
+                case '/': res = a / b; break;
+            }
+
+            push(&stack, res);
+        }
+    }
+
+    printf("%d", pop(&stack));
+    return 0;
+}
