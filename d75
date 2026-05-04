@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    int sum;
+    int index;
+} Entry;
+
+int findIndex(Entry* table, int size, int sum) {
+    for (int i = 0; i < size; i++)
+        if (table[i].sum == sum)
+            return table[i].index;
+    return -2;
+}
+
+int main() {
+    int arr[100001], n = 0;
+
+    while (scanf("%d", &arr[n]) == 1)
+        n++;
+
+    Entry* table = (Entry*)malloc((n + 1) * sizeof(Entry));
+    int    size  = 0;
+
+    // Store prefix sum 0 at index -1
+    table[size].sum   = 0;
+    table[size].index = -1;
+    size++;
+
+    int prefixSum = 0;
+    int maxLen    = 0;
+
+    for (int i = 0; i < n; i++) {
+        prefixSum += arr[i];
+
+        int idx = findIndex(table, size, prefixSum);
+
+        if (idx != -2) {
+            int len = i - idx;
+            if (len > maxLen)
+                maxLen = len;
+        } else {
+            table[size].sum   = prefixSum;
+            table[size].index = i;
+            size++;
+        }
+    }
+
+    printf("%d\n", maxLen);
+
+    free(table);
+    return 0;
+}
